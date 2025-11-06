@@ -7,7 +7,13 @@ public class Menu : MonoBehaviour
 {
   public void OnPlayButton()
   {
+    SceneManager.LoadScene("Prologue");
+  }
+
+   public void OnPlayButton2()
+  {
     SceneManager.LoadScene("Hospital");
   }
+
 
 }
