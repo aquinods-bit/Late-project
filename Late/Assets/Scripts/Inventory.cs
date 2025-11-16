@@ -8,7 +8,7 @@ public class Inventory : MonoBehaviour
     private bool isOpen = false;
 
     // Reference to inventory UI (assign in Inspector if you have a Canvas/UI Panel)
-    //public Transform HUD;
+    // public Transform HUD;
     // List to hold inventory items
     private List<GameObject> items = new List<GameObject>();
     // Maximum number of items allowed
