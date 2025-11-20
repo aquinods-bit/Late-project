@@ -5,17 +5,10 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public GameObject deathScreen;
     public GameObject player;
 
     public float health = 100f;
 
-
-
-    void Start()
-    {
-        deathScreen.SetActive(false);
-    }
 
 
 
@@ -27,7 +20,6 @@ public class PlayerHealth : MonoBehaviour
             player.GetComponent<FPSController>().enabled = false;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-            deathScreen.SetActive(true);
         }
 
         if (health > 100)

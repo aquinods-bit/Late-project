@@ -5,7 +5,7 @@ using UnityEngine;
 public class attackAnim : MonoBehaviour
 {
     [SerializeField] private Animator myAnimatorController;
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if(other.CompareTag("Player"))
         {
@@ -15,7 +15,7 @@ public class attackAnim : MonoBehaviour
 
     }
 
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit(Collider other)
     {
         if(other.CompareTag("Player"))
         {

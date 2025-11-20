@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
  
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
@@ -20,6 +21,8 @@ public class FPSController : MonoBehaviour
     float rotationX = 0;
  
     public bool canMove = true;
+
+    private int count;
  
     
     CharacterController characterController;
@@ -75,5 +78,29 @@ public class FPSController : MonoBehaviour
         }
  
         #endregion
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("PickUp"))
+        {
+           other.gameObject.SetActive(false);
+           count = count +1;
+        }
+
+    }
+
+    void SetCountText()
+    {
+
+        if (count >= 1)
+        {
+            //winTextObject.SetActive(true);
+            Destroy(GameObject.FindGameObjectWithTag("Enemy"));
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            
+        }
+
+
     }
 }

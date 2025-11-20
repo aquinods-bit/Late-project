@@ -17,6 +17,10 @@ public class Health : MonoBehaviour
     [Tooltip("Seconds of invulnerability after taking damage to avoid multiple hits")]
     public float invulnerabilitySeconds = 0.5f;
 
+    [Header("References")]
+    public GameObject playerObject; // Assign the player object in the inspector
+    public GameObject enemyObject;  // Assign the enemy object in the inspector
+
     [Header("Events")]
     public UnityEvent OnHurt;
     public UnityEvent OnDied;
@@ -122,7 +126,8 @@ public class Health : MonoBehaviour
     // Optional: if enemy collides with player, apply contact damage
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        Debug.Log($"[Health] Collision detected with {collision.gameObject.name}.");
+        if (collision.gameObject == enemyObject)
         {
             bool applied = TakeDamage(contactDamage);
             if (applied)
@@ -133,7 +138,8 @@ public class Health : MonoBehaviour
     // Also support triggers
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy"))
+        Debug.Log($"[Health] Trigger detected with {other.gameObject.name}.");
+        if (other.gameObject == enemyObject)
         {
             bool applied = TakeDamage(contactDamage);
             if (applied)

@@ -15,25 +15,34 @@ public class Interactor : MonoBehaviour
     // Reference to the interactable popup UI (assign in Inspector)
     public GameObject InteractablePopUp;
     public AudioClip PickUp;
-    public Transform InteractionPoint;  
+    public Transform InteractionPoint;
     public float InteractionRange = 3f;
-
-    private IInteractable currentInteractable; // Track the current interactable object
 
     void Start()
     {
-        InteractablePopUp = GameObject.Find("InteractablePopUp");
+        // Try to find the popup if it wasn't assigned in the Inspector
+        if (InteractablePopUp == null)
+            InteractablePopUp = GameObject.Find("InteractablePopUp");
+
+        // If InteractionPoint isn't set, fall back to this object's transform
+        if (InteractionPoint == null)
+            InteractionPoint = this.transform;
+
         HidePopup();
     }
 
     void Update()
     {
         // Proximity check for interactables
-        Collider[] nearby = Physics.OverlapSphere(InteractionPoint.position, InteractionRange);
+        // Use the provided layer mask when set; otherwise search all layers
+        Collider[] nearby;
+        if (interactableLayer.value != 0)
+            nearby = Physics.OverlapSphere(InteractionPoint.position, InteractionRange, interactableLayer);
+        else
+            nearby = Physics.OverlapSphere(InteractionPoint.position, InteractionRange);
         IInteractable closestInteractable = null;
         float closestDistance = float.MaxValue;
         GameObject closestObject = null;
-
         foreach (var col in nearby)
         {
             if (col.TryGetComponent(out IInteractable interactableObj))
@@ -47,22 +56,40 @@ public class Interactor : MonoBehaviour
                 }
             }
         }
-
-        // Show or hide popup based on proximity
+        // Only show popup if close to a pickable object
         if (closestInteractable != null && closestDistance <= InteractionRange)
         {
-            if (InteractablePopUp != null && !InteractablePopUp.activeSelf)
+            if (InteractablePopUp != null)
             {
-                ShowPopup(closestObject);
+                InteractablePopUp.SetActive(true);
+                var text = InteractablePopUp.GetComponentInChildren<Text>(true);
+                if (text != null) text.gameObject.SetActive(true);
+                Debug.Log($"[Interactor] Popup shown for {closestObject?.name}");
             }
 
             // Interact on key press
             if (Input.GetKeyDown(KeyCode.E))
             {
-                bool pickedUp = closestInteractable.Interact();
+                bool pickedUp = false;
+                try
+                {
+                    pickedUp = closestInteractable.Interact();
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"[Interactor] Exception during Interact(): {ex}");
+                }
+
+                // Also treat the object being deactivated as a successful pickup
+                if (!pickedUp && closestObject != null && !closestObject.activeInHierarchy)
+                {
+                    pickedUp = true;
+                }
+
                 if (pickedUp)
                 {
-                    AudioSource.PlayClipAtPoint(PickUp, transform.position);
+                    if (PickUp != null)
+                        AudioSource.PlayClipAtPoint(PickUp, transform.position);
                     HidePopup(); // Hide popup after pickup
                     Debug.Log("[Interactor] Popup hidden after pickup");
                 }
@@ -78,14 +105,6 @@ public class Interactor : MonoBehaviour
         }
     }
 
-    void ShowPopup(GameObject closestObject)
-    {
-        InteractablePopUp.SetActive(true);
-        var text = InteractablePopUp.GetComponentInChildren<Text>(true);
-        if (text != null) text.gameObject.SetActive(true);
-        Debug.Log($"[Interactor] Popup shown for {closestObject?.name}");
-    }
-
     void HidePopup()
     {
         if (InteractablePopUp != null)
@@ -94,3 +113,9 @@ public class Interactor : MonoBehaviour
         }
     }
 }
+
+// public class Interactor : MonoBehaviour, IInteractable{
+//     public void Interact(){
+//         Debug.Log("Interacted with " + gameObject.name);
+// }
+// Needed for all interactable objects
